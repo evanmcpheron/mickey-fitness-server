@@ -1,0 +1,21 @@
+const logLevels = {
+  success: "SUCCESS",
+  trace: "TRACE",
+  debug: "DEBUG",
+  info: "INFO",
+  warn: "WARN",
+  error: "ERROR",
+  fatal: "FATAL",
+};
+
+module.exports = {
+  routing: {
+    USER_ROOT: "/user",
+    PROFILE_ROOT: "/profile",
+    GURU_ROOT: "/guru",
+    STRIPE_ROOT: "/stripe",
+  },
+  paginations: {
+    DEFAULT_LIMIT: 60,
+  },
+};
