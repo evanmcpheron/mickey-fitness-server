@@ -11,6 +11,7 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
+		"babel-cli": "^6.26.0",
 		"babel-node": "^0.0.1-security",
 		"bcryptjs": "^2.4.3",
 		"cookie-session": "^2.0.0",
