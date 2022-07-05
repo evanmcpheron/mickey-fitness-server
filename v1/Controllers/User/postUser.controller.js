@@ -11,7 +11,7 @@ module.exports = {
 
 		if (existingUser) {
 			return res
-				.status(400)
+				.status(401)
 				.send(
 					error(
 						'A user already exists with that email. Please try again.',
@@ -54,7 +54,7 @@ module.exports = {
 
 		if (!existingUser) {
 			return res
-				.status(400)
+				.status(401)
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
@@ -69,7 +69,7 @@ module.exports = {
 		);
 		if (!passwordsMatch) {
 			return res
-				.status(400)
+				.status(401)
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
