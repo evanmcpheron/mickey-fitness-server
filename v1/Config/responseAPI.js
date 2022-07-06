@@ -1,34 +1,35 @@
-export const success = (message, results, statusCode) => {
-  return {
-    message,
-    error: false,
-    code: statusCode,
-    results,
-  };
+export const success = (message, statusCode, results) => {
+	return {
+		message,
+		error: false,
+		code: statusCode,
+		results,
+	};
 };
 
-export const error = (message, statusCode) => {
-  // List of common HTTP request code
-  const codes = [200, 201, 400, 401, 404, 403, 422, 500];
+export const error = (message, statusCode, results) => {
+	// List of common HTTP request code
+	const codes = [200, 201, 400, 401, 404, 403, 422, 500];
 
-  // Get matched code
-  const findCode = codes.find((code) => code == statusCode);
+	// Get matched code
+	const findCode = codes.find(code => code == statusCode);
 
-  if (!findCode) statusCode = 500;
-  else statusCode = findCode;
+	if (!findCode) statusCode = 500;
+	else statusCode = findCode;
 
-  return {
-    message,
-    code: statusCode,
-    error: true,
-  };
+	return {
+		message,
+		code: statusCode,
+		error: true,
+		results,
+	};
 };
 
-export const validation = (errors) => {
-  return {
-    message: "Validation errors",
-    error: true,
-    code: 422,
-    errors,
-  };
+export const validation = errors => {
+	return {
+		message: 'Validation errors',
+		error: true,
+		code: 422,
+		errors,
+	};
 };

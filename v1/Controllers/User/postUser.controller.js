@@ -15,7 +15,8 @@ module.exports = {
 				.send(
 					error(
 						'A user already exists with that email. Please try again.',
-						res.statusCode
+						res.statusCode,
+						{ session: null }
 					)
 				);
 		}
@@ -37,15 +38,12 @@ module.exports = {
 			jwt: userJwt,
 		};
 
-		res
-			.status(201)
-			.send(
-				success(
-					'You have succesfully registered',
-					{ user, session: userJwt },
-					res.statusCode
-				)
-			);
+		res.status(201).send(
+			success('You have succesfully registered', res.statusCode, {
+				user,
+				session: userJwt,
+			})
+		);
 	},
 	login: async (req, res) => {
 		const { email, password, rememberMe } = req.body;
@@ -58,7 +56,8 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode
+						res.statusCode,
+						{ session: null }
 					)
 				);
 		}
@@ -73,7 +72,8 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode
+						res.statusCode,
+						{ session: null }
 					)
 				);
 		}
@@ -93,20 +93,17 @@ module.exports = {
 			jwt: userJwt,
 		};
 
-		res
-			.status(200)
-			.send(
-				success(
-					'Welcome back',
-					{ user: existingUser, session: userJwt },
-					res.statusCode
-				)
-			);
+		res.status(200).send(
+			success('Welcome back', res.statusCode, {
+				user: existingUser,
+				session: userJwt,
+			})
+		);
 	},
 	signout: (req, res) => {
 		req.session = null;
 		res
 			.status(200)
-			.send(success('You have successfully signed out', {}, res.statusCode));
+			.send(success('You have successfully signed out', res.statusCode, {}));
 	},
 };
