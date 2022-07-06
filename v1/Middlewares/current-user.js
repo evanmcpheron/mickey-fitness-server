@@ -1,17 +1,17 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 export const currentUser = (req, res, next) => {
-  if (!req.session?.jwt) {
-    return next();
-  }
+	if (!req.session?.jwt) {
+		return next();
+	}
 
-  try {
-    const payload = jwt.verify(req.session.jwt, process.env.JSON_WEB_TOKEN);
+	try {
+		const payload = jwt.verify(req.session.jwt, process.env.JSON_WEB_TOKEN);
 
-    req.currentUser = payload;
-  } catch (err) {
-    console.log(err);
-  }
+		req.currentUser = payload;
+	} catch (err) {
+		console.log(err);
+	}
 
-  next();
+	next();
 };

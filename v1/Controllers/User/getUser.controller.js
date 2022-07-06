@@ -1,7 +1,7 @@
-import User from "../../Models/User";
+import { success } from '../../Config/responseAPI';
 
 export default {
-  me: async (req, res) => {
-    res.send({ currentUser: req.currentUser || null });
-  },
+	me: async (req, res) => {
+		res.status(200).send(success('', res.statusCode, req.currentUser || null));
+	},
 };

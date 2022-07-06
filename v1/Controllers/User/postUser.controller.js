@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 import { success, error } from '../../Config/responseAPI';
 import { Password } from '../../Services/password';
 
-const { User } = require('../../Models/User');
+import { User } from '../../Models/User';
 
 module.exports = {
 	signup: async (req, res) => {
@@ -15,8 +15,7 @@ module.exports = {
 				.send(
 					error(
 						'A user already exists with that email. Please try again.',
-						res.statusCode,
-						{ session: null }
+						res.statusCode
 					)
 				);
 		}
@@ -41,7 +40,6 @@ module.exports = {
 		res.status(201).send(
 			success('You have succesfully registered', res.statusCode, {
 				user,
-				session: userJwt,
 			})
 		);
 	},
@@ -56,8 +54,7 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode,
-						{ session: null }
+						res.statusCode
 					)
 				);
 		}
@@ -72,8 +69,7 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode,
-						{ session: null }
+						res.statusCode
 					)
 				);
 		}
@@ -96,7 +92,6 @@ module.exports = {
 		res.status(200).send(
 			success('Welcome back', res.statusCode, {
 				user: existingUser,
-				session: userJwt,
 			})
 		);
 	},
