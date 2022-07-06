@@ -24,12 +24,3 @@ export const error = (message, statusCode, results) => {
 		results,
 	};
 };
-
-export const validation = errors => {
-	return {
-		message: 'Validation errors',
-		error: true,
-		code: 422,
-		errors,
-	};
-};

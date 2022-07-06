@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-import { success, error, validation } from '../../Config/responseAPI';
+import { success, error } from '../../Config/responseAPI';
 import { Password } from '../../Services/password';
 
 const { User } = require('../../Models/User');
