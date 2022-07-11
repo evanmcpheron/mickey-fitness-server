@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(
 	cookieSession({
+		name: 'session',
 		signed: false,
 		secure: process.env.NODE_ENV !== 'test',
 	})
