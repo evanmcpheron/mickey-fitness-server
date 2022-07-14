@@ -15,14 +15,38 @@ const application = {
 	app,
 };
 
+const origin =
+	process.env.NODE_ENV === 'production'
+		? 'https://www.mickeyfitness.com'
+		: 'http://localhost:3000';
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+	cors({
+		credentials: true,
+		origin,
+	})
+);
+app.use(function (req, res, next) {
+	res.header('Access-Control-Allow-Credentials', true);
+	res.header('Access-Control-Allow-Origin', req.headers.origin);
+	res.header(
+		'Access-Control-Allow-Methods',
+		'GET,PUT,POST,DELETE,UPDATE,OPTIONS'
+	);
+	res.header(
+		'Access-Control-Allow-Headers',
+		'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept'
+	);
+	next();
+});
 app.use(
 	cookieSession({
 		name: 'session',
 		signed: false,
-		secure: process.env.NODE_ENV !== 'test',
+		// secure: process.env.NODE_ENV !== 'test',
+		secure: false,
 	})
 );
 
@@ -36,7 +60,7 @@ app.use(
 
 //   res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
 // });
-app.use('/v1', require('./v1/Routes/index')(application));
+app.use('/api', require('./v1/Routes/index')(application));
 
 if (process.env.NODE_ENV !== 'test') {
 	app.listen(PORT, async () => {

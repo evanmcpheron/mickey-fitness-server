@@ -6,8 +6,9 @@ import { User } from '../../Models/User';
 
 module.exports = {
 	signup: async (req, res) => {
-		const { email, password } = req.body;
-		const existingUser = await User.findOne({ email });
+		const { email, password, displayName } = req.body;
+
+		const existingUser = await User.findOne({ 'data.email': email });
 
 		if (existingUser) {
 			return res
@@ -20,7 +21,12 @@ module.exports = {
 				);
 		}
 
-		const user = new User({ email, password });
+		const user = new User({
+			password,
+			role: 'admin',
+			data: { displayName, email },
+		});
+
 		await user.save();
 
 		// Generate JWT
@@ -28,13 +34,14 @@ module.exports = {
 			{
 				id: user.id,
 				email: user.email,
+				displayName: user.displayName,
 			},
 			process.env.JSON_WEB_TOKEN
 		);
 
 		// Store it on session object
 		req.session = {
-			jwt: userJwt,
+			access_token: userJwt,
 		};
 
 		res.status(201).send(
@@ -79,6 +86,7 @@ module.exports = {
 			{
 				id: existingUser.id,
 				email: existingUser.email,
+				displayName: existingUser.displayName,
 			},
 			process.env.JSON_WEB_TOKEN,
 			{ expiresIn: rememberMe ? '14d' : '24h' }
@@ -86,7 +94,7 @@ module.exports = {
 
 		// Store it on session object
 		req.session = {
-			jwt: userJwt,
+			access_token: userJwt,
 		};
 
 		res.status(200).send(

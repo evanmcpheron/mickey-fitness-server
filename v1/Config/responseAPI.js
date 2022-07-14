@@ -1,8 +1,9 @@
 export const success = (message, statusCode, results) => {
 	return {
 		message,
-		error: false,
 		code: statusCode,
+		severity: 'success',
+		error: false,
 		results,
 	};
 };
@@ -20,6 +21,7 @@ export const error = (message, statusCode, results) => {
 	return {
 		message,
 		code: statusCode,
+		severity: 'error',
 		error: true,
 		results,
 	};
