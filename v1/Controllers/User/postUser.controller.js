@@ -53,7 +53,7 @@ module.exports = {
 	login: async (req, res) => {
 		const { email, password, rememberMe } = req.body;
 
-		const existingUser = await User.findOne({ email });
+		const existingUser = await User.findOne({ 'data.email': email });
 
 		if (!existingUser) {
 			return res
@@ -70,6 +70,7 @@ module.exports = {
 			existingUser.password,
 			password
 		);
+
 		if (!passwordsMatch) {
 			return res
 				.status(401)
