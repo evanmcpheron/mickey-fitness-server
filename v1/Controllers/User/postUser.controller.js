@@ -23,7 +23,7 @@ module.exports = {
 
 		const user = new User({
 			password,
-			role: 'admin',
+			role: 'user',
 			data: { displayName, email },
 		});
 
