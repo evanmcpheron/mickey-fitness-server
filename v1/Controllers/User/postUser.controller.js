@@ -4,6 +4,7 @@ import { Password } from '../../Services/password';
 import { sendEmail } from '../../Utils/sendEmail';
 
 import { User } from '../../Models/User';
+import Token from '../../Models/Token';
 
 module.exports = {
 	signup: async (req, res) => {
@@ -107,11 +108,34 @@ module.exports = {
 	},
 	forgotPassword: async (req, res) => {
 		const { email } = req.body;
+
+		const user = await User.find({ 'data.email': email });
+
+		let token = await Token.findOne({ userId: user._id });
+
+		if (!token) {
+			token = await new Token({
+				userId: user._id,
+				token: crypto.randomBytes(32).toString('hex'),
+			}).save();
+		}
+
+		const baseUrl =
+			process.env.NODE_ENV === 'production'
+				? process.env.PROD_BASE_URL
+				: process.env.LOCAL_BASE_URL;
+
+		const link = `${baseUrl}/password-reset/${user._id}/${token.token}`;
+		await sendEmail(user.email, 'Password reset', link);
+
+		res.send('password reset link sent to your email account');
+
 		const response = await sendEmail(
 			email,
 			'Password Reset Link for Mickey Fitness',
-			'text for email body'
+			link
 		);
+
 		res
 			.status(200)
 			.send(
