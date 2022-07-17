@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { success, error } from '../../Config/responseAPI';
 import { Password } from '../../Services/password';
 import { sendEmail } from '../../Utils/sendEmail';
+import crypto from 'crypto';
 
 import { User } from '../../Models/User';
 import Token from '../../Models/Token';
@@ -109,7 +110,15 @@ module.exports = {
 	forgotPassword: async (req, res) => {
 		const { email } = req.body;
 
-		const user = await User.find({ 'data.email': email });
+		const user = await User.findOne({ 'data.email': email });
+
+		if (!user) {
+			return res
+				.status(401)
+				.send(
+					error('Check your email for password reset link', res.statusCode)
+				);
+		}
 
 		let token = await Token.findOne({ userId: user._id });
 
@@ -122,13 +131,12 @@ module.exports = {
 
 		const baseUrl =
 			process.env.NODE_ENV === 'production'
-				? process.env.PROD_BASE_URL
-				: process.env.LOCAL_BASE_URL;
+				? process.env.PROD_BASE_UI_URL
+				: process.env.LOCAL_BASE_UI_URL;
 
 		const link = `${baseUrl}/password-reset/${user._id}/${token.token}`;
-		await sendEmail(user.email, 'Password reset', link);
 
-		res.send('password reset link sent to your email account');
+		await sendEmail(user.email, 'Password reset', link);
 
 		const response = await sendEmail(
 			email,
@@ -145,6 +153,38 @@ module.exports = {
 					response
 				)
 			);
+	},
+	passwordReset: async (req, res) => {
+		const {
+			password: { password },
+		} = req.body;
+
+		const hashedPassword = await Password.toHash(password);
+
+		try {
+			const user = await User.findOne({ _id: req.params.userId });
+			if (!user) return res.status(400).send('invalid link or expired');
+
+			const token = await Token.findOne({
+				userId: user._id,
+				token: req.params.token,
+			});
+
+			if (!token)
+				return res
+					.status(400)
+					.send(error('Invalid link or expired', res.statusCode));
+
+			user.password = password;
+
+			await user.save();
+			await token.deleteOne();
+
+			res.send('password reset sucessfully.');
+		} catch (error) {
+			res.send('An error occured');
+			console.log(error);
+		}
 	},
 	signout: (req, res) => {
 		req.session = null;

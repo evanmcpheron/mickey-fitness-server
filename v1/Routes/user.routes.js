@@ -37,6 +37,14 @@ module.exports = () => {
 		async (req, res) => await user.post.forgotPassword(req, res)
 	);
 
+	// @route    POST v1/auth/password-reset/:userId/:token
+	// @desc     Sends a forgot password link to email to reset password
+	// @access   Public
+	router.post(
+		'/password-reset/:userId/:token',
+		async (req, res) => await user.post.passwordReset(req, res)
+	);
+
 	// @route    POST v1/auth/signout
 	// @desc     Removes current user session information form server
 	// @access   Public
