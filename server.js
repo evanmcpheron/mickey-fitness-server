@@ -60,7 +60,7 @@ app.use(
 
 //   res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
 // });
-app.use('/api', require('./v1/Routes/index')(application));
+app.use('/v1', require('./v1/Routes/index')(application));
 
 if (process.env.NODE_ENV !== 'test') {
 	app.listen(PORT, async () => {

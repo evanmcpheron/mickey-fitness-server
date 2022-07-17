@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { success, error } from '../../Config/responseAPI';
 import { Password } from '../../Services/password';
+import { sendEmail } from '../../Utils/sendEmail';
 
 import { User } from '../../Models/User';
 
@@ -103,6 +104,23 @@ module.exports = {
 				user: existingUser,
 			})
 		);
+	},
+	forgotPassword: async (req, res) => {
+		const { email } = req.body;
+		await sendEmail(
+			email,
+			'Password Reset Link for Mickey Fitness',
+			'text for email body'
+		);
+		res
+			.status(200)
+			.send(
+				success(
+					'Check your email for password reset link',
+					res.statusCode,
+					email
+				)
+			);
 	},
 	signout: (req, res) => {
 		req.session = null;
