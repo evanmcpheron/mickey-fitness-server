@@ -107,7 +107,7 @@ module.exports = {
 	},
 	forgotPassword: async (req, res) => {
 		const { email } = req.body;
-		await sendEmail(
+		const response = await sendEmail(
 			email,
 			'Password Reset Link for Mickey Fitness',
 			'text for email body'
@@ -118,7 +118,7 @@ module.exports = {
 				success(
 					'Check your email for password reset link',
 					res.statusCode,
-					email
+					response
 				)
 			);
 	},
