@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { success, error } from '../../Config/responseAPI';
-import { Password } from '../../Services/password';
-import { sendEmail } from '../../Utils/sendEmail';
+import { Password } from '../../Services/Password';
 import crypto from 'crypto';
 
 import { User } from '../../Models/User';
 import Token from '../../Models/Token';
+import { Email } from '../../Services/Email';
 
 module.exports = {
 	signup: async (req, res) => {
@@ -136,12 +136,14 @@ module.exports = {
 
 		const link = `${baseUrl}/password-reset/${user._id}/${token.token}`;
 
-		await sendEmail(user.email, 'Password reset', link);
+		await Email.send(user.email, 'Password reset', link);
 
-		const response = await sendEmail(
+		const response = await Email.send(
 			email,
 			'Password Reset Link for Mickey Fitness',
-			link
+			link,
+			process.env.EMAIL_NOREPLY_EMAIL,
+			process.env.EMAIL_NOREPLY_PASSWORD
 		);
 
 		res
@@ -155,18 +157,14 @@ module.exports = {
 			);
 	},
 	passwordReset: async (req, res) => {
-		const {
-			password: { password },
-		} = req.body;
-
-		const hashedPassword = await Password.toHash(password);
+		const { password } = req.body;
 
 		try {
 			const user = await User.findOne({ _id: req.params.userId });
-			if (!user) return res.status(400).send('invalid link or expired');
+			if (!user) return res.status(400).send('Invalid link or expired');
 
 			const token = await Token.findOne({
-				userId: user._id,
+				userId: req.params.userId,
 				token: req.params.token,
 			});
 
@@ -180,10 +178,10 @@ module.exports = {
 			await user.save();
 			await token.deleteOne();
 
-			res.send('password reset sucessfully.');
-		} catch (error) {
-			res.send('An error occured');
-			console.log(error);
+			res.send(success('password reset sucessfully.', res.statusCode, user));
+		} catch (err) {
+			res.send(error('An error occured', res.statusCode));
+			console.log(err);
 		}
 	},
 	signout: (req, res) => {

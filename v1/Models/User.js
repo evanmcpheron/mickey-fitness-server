@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Password } from '../Services/password';
+import { Password } from '../Services/Password';
 
 const UserSchema = new mongoose.Schema(
 	{
