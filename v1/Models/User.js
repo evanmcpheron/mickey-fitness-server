@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema(
 			},
 			photoURL: {
 				type: String,
-				default: 'assets/images/avatars/brian-hughes.jpg',
+				default: 'default-profile.jpg',
 				required: true,
 			},
 			email: {

@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { User } from '../../Models/User';
 import Token from '../../Models/Token';
 import { Email } from '../../Services/Email';
+import { File } from '../../Services/File';
 
 module.exports = {
 	signup: async (req, res) => {
@@ -184,6 +185,7 @@ module.exports = {
 			console.log(err);
 		}
 	},
+
 	signout: (req, res) => {
 		req.session = null;
 		res

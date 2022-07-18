@@ -1,6 +1,7 @@
 import express from 'express';
 import { user } from '../Controllers/User/userIndex.controller';
 import { currentUser } from '../Middlewares/current-user';
+import { File } from '../Services/File';
 
 module.exports = () => {
 	const router = express.Router();
@@ -43,6 +44,16 @@ module.exports = () => {
 	router.post(
 		'/password-reset/:userId/:token',
 		async (req, res) => await user.post.passwordReset(req, res)
+	);
+
+	// @route    POST v1/auth/profile/image
+	// @desc     Sends a forgot password link to email to reset password
+	// @access   Public
+	router.put(
+		'/profile/image',
+		currentUser,
+		File.type('image'),
+		async (req, res) => await user.update.profileImageUpload(req, res)
 	);
 
 	// @route    POST v1/auth/signout
