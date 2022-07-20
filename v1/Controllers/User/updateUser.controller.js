@@ -6,12 +6,22 @@ module.exports = {
 	profileImageUpload: async (req, res) => {
 		if (!req.currentUser) return;
 
-		const fileName = await File.uploadImage(req.file);
+		const acceptedTypes = ['png', 'jpg', 'jpeg'];
+
+		const threeMB = 1000 * 1000 * 3;
+
+		const validationResult = File.validation(req.file, threeMB, acceptedTypes);
 
 		if (
-			fileName === 'Invalid file type' ||
-			fileName === 'File must be less than 3mb'
+			validationResult === 'Invalid file type' ||
+			validationResult === 'File must be less than 3mb'
 		) {
+			return res.status(400).send(error, validationResult);
+		}
+
+		const fileName = await File.upload(req.file);
+
+		if (fileName === 'Something went wrong with upload') {
 			return res.status(400).send(error(fileName, res.statusCode));
 		}
 

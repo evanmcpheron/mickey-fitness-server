@@ -14,6 +14,7 @@ module.exports = {
 		PROFILE_ROOT: '/profile',
 		GURU_ROOT: '/guru',
 		STRIPE_ROOT: '/stripe',
+		GLOBAL_ROOT: '/global',
 	},
 	paginations: {
 		DEFAULT_LIMIT: 60,

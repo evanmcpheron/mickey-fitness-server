@@ -13,37 +13,37 @@ export class File {
 	static type(fileType) {
 		return multer({ storage: this.storage }).single(fileType);
 	}
-	static async uploadImage(file) {
+
+	static validation(file, maxSize, types) {
+		const s3 = new AWS.S3({
+			accessKeyId: process.env.AWS_ID,
+			secretAccessKey: process.env.AWS_SECRET,
+		});
+		if (file.size > maxSize) {
+			return 'File must be less than 3mb'; // TODO: make file size message more dynamic
+		}
+
+		let myFile = file.originalname.split('.');
+
+		const fileType = myFile[myFile.length - 1];
+
+		if (!types.includes(fileType)) {
+			return 'Invalid file type';
+		}
+		return;
+	}
+
+	static async upload(file) {
 		try {
-			const s3 = new AWS.S3({
-				accessKeyId: process.env.AWS_ID,
-				secretAccessKey: process.env.AWS_SECRET,
-			});
-
-			const allowed_files = ['png', 'jpeg', 'jpg'];
-			const allowed_file_types = ['image/png', 'image/jpeg', 'image/jpg'];
-
 			let myFile = file.originalname.split('.');
 			const fileType = myFile[myFile.length - 1];
-
-			if (
-				!allowed_files.includes(fileType) ||
-				!allowed_file_types.includes(file.mimetype)
-			) {
-				return 'Invalid file type';
-			}
-			const fileSize = 1000 * 1000 * 3; //3mb
-
-			if (file.size > fileSize) {
-				return 'File must be less than 3mb';
-			}
 
 			const random = v4();
 
 			const params = {
 				Bucket: process.env.AWS_BUCKET_NAME,
 				Key: `${random}.${fileType}`,
-				Body: sharp(file.buffer),
+				Body: file.buffer,
 			};
 
 			s3.upload(params, (error, data) => {
@@ -52,9 +52,12 @@ export class File {
 					data
 				);
 				if (error) {
-					console.error(error);
+					console.error(
+						'🚀 ~ file: File.js ~ line 56 ~ File ~ s3.upload ~ error',
+						error
+					);
+					return 'Something went wrong with upload';
 				}
-				console.log(data);
 			});
 			return `${random}.${fileType}`;
 		} catch (error) {
@@ -67,6 +70,19 @@ export class File {
 	}
 
 	static async delete(file) {
-		console.log('🚀 ~ file: File.js ~ line 50 ~ File ~ delete ~ file', file);
+		const s3 = new AWS.S3({
+			accessKeyId: process.env.AWS_ID,
+			secretAccessKey: process.env.AWS_SECRET,
+		});
+
+		const params = { Bucket: process.env.AWS_BUCKET_NAME, Key: file };
+
+		s3.deleteObject(params, function (error, data) {
+			if (error) {
+				console.error('🚀 ~ file: File.js ~ line 87 ~ File ~ error', error);
+				return error;
+			}
+		});
+		return 'File successfully deleted';
 	}
 }
