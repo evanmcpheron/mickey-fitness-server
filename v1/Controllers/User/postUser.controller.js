@@ -137,8 +137,6 @@ module.exports = {
 
 		const link = `${baseUrl}/password-reset/${user._id}/${token.token}`;
 
-		await Email.send(user.email, 'Password reset', link);
-
 		const response = await Email.send(
 			email,
 			'Password Reset Link for Mickey Fitness',

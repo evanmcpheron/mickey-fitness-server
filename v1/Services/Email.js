@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 export class Email {
-	static async send(to, subject, text, from, fromPassword) {
+	static async send(to, subject, message, from, fromPassword) {
 		try {
 			const transporter = nodemailer.createTransport({
 				host: process.env.HOST,
@@ -14,14 +14,15 @@ export class Email {
 			});
 
 			await transporter.sendMail({
-				from: process.env.EMAIL_NOREPLY_EMAIL,
+				from,
 				to,
 				subject: subject,
-				text: text,
+				text: message,
 			});
 
-			return 'email sent sucessfully';
+			return 'Email sent successfully.';
 		} catch (error) {
+			console.log("🚀 ~ file: Email.js ~ line 27 ~ error: ",error);
 			return { error, message: 'email not sent' };
 		}
 	}

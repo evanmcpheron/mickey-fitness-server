@@ -12,5 +12,7 @@ module.exports = () => {
 		async (req, res) => await globalRoute.remove.deleteFile(req, res)
 	);
 
+	router.post('/send-email', async (req, res) => await globalRoute.post.sendEmail(req, res))
+
 	return router;
 };
