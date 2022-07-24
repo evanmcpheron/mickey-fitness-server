@@ -13,7 +13,16 @@ Email: ${from}
 Subject: ${subject}
 Message: ${message}`,
 			process.env.EMAIL_SUPPORT_EMAIL,
-			process.env.EMAIL_SUPPORT_PASSWORD);
+			process.env.EMAIL_SUPPORT_PASSWORD,
+		);
+
+		await Email.send(
+			from,
+			"Your support request from Mickey Fitness",
+			"Thank you for reaching out. We will make sure to respond within 1 business day. If you have anything further to add please feel free to respond to this email.",
+			process.env.EMAIL_SUPPORT_EMAIL,
+			process.env.EMAIL_SUPPORT_PASSWORD,
+		);
 
 		if (response === 'Email sent successfully.') {
 			return res
@@ -24,4 +33,5 @@ Message: ${message}`,
 		return res
 			.status(400)
 			.send(error('Something went wrong', res.statusCode, {}));
-	},};
+	},
+};
