@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../Models/User';
+import { User } from '../Models/User.model';
 
 export const currentUser = async (req, res, next) => {
 	if (!req.session?.access_token) {

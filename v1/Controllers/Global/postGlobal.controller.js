@@ -1,5 +1,5 @@
-import { error, success } from '../../Config/responseAPI';
-import { Email } from '../../Services/Email';
+import { error, success } from '../../Utils/responseAPI.util';
+import { Email } from '../../Services/Email.service';
 
 module.exports = {
 	sendEmail: async (req, res) => {

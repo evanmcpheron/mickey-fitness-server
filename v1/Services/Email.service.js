@@ -28,7 +28,7 @@ export class Email {
 
 			return 'Email sent successfully.';
 		} catch (error) {
-			console.log('🚀 ~ file: Email.js ~ line 27 ~ error: ', error);
+			console.log('🚀 ~ file: Email.service.js ~ line 27 ~ error: ', error);
 			return { error, message: 'email not sent' };
 		}
 	}

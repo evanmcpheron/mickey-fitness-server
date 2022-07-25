@@ -1,5 +1,5 @@
-import { error, success } from '../../Config/responseAPI';
-import { File } from '../../Services/File';
+import { error, success } from '../../Utils/responseAPI.util';
+import { File } from '../../Services/File.service';
 
 module.exports = {
 	deleteFile: async (req, res) => {

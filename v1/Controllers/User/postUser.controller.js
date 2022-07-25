@@ -1,16 +1,15 @@
 import jwt from 'jsonwebtoken';
-import { success, error } from '../../Config/responseAPI';
-import { Password } from '../../Services/Password';
+import { success, error } from '../../Utils/responseAPI.util';
+import { Password } from '../../Services/Password.service';
 import crypto from 'crypto';
 
-import { User } from '../../Models/User';
-import Token from '../../Models/Token';
-import { Email } from '../../Services/Email';
-import { File } from '../../Services/File';
+import { User } from '../../Models/User.model';
+import { Token } from '../../Models/Token.model';
+import { Email } from '../../Services/Email.service';
 
 module.exports = {
 	signup: async (req, res) => {
-		const { email, password, displayName } = req.body;
+		const { email, password, firstName, lastName } = req.body;
 
 		const existingUser = await User.findOne({ 'data.email': email });
 
@@ -25,10 +24,17 @@ module.exports = {
 				);
 		}
 
+		const formDisplayName = (firstName, lastName) => {
+			if(!lastName) {
+				return firstName;
+			}
+			return `${firstName} ${lastName}`
+		}
+
 		const user = new User({
 			password,
 			role: 'user',
-			data: { displayName, email },
+			data: { firstName,lastName, displayName: formDisplayName(firstName, lastName), email },
 		});
 
 		await user.save();
@@ -38,6 +44,8 @@ module.exports = {
 			{
 				id: user.id,
 				email: user.email,
+				firstName: user.firstName,
+				lastName: user.lastName,
 				displayName: user.displayName,
 			},
 			process.env.JSON_WEB_TOKEN

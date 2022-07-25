@@ -1,4 +1,4 @@
-import { error, success } from '../../Config/responseAPI';
+import { error, success } from '../../Utils/responseAPI.util';
 
 export default {
 	me: async (req, res) => {

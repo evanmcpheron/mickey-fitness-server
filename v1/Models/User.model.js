@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Password } from '../Services/Password';
+import { Password } from '../Services/Password.service';
 
 const UserSchema = new mongoose.Schema(
 	{
@@ -15,10 +15,26 @@ const UserSchema = new mongoose.Schema(
 				type: String,
 				required: true,
 			},
+			firstName: {
+				type: String,
+				required: true,
+			},
+			lastName: {
+				type: String,
+				required: false,
+			},
+			location: {
+				type: String,
+				default: ''
+			},
 			photoURL: {
 				type: String,
 				default: 'default-profile.jpg',
 				required: true,
+			},
+			coverPhoto: {
+				type: String,
+				default: 'default-cover-photo.png'
 			},
 			email: {
 				type: String,

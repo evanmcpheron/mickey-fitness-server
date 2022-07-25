@@ -1,6 +1,6 @@
-import { User } from '../../Models/User';
-import { error, success } from '../../Config/responseAPI';
-import { File } from '../../Services/File';
+import { User } from '../../Models/User.model';
+import { error, success } from '../../Utils/responseAPI.util';
+import { File } from '../../Services/File.service';
 
 module.exports = {
 	profileImageUpload: async (req, res) => {

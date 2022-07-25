@@ -3,7 +3,7 @@ import post from "./postUser.controller";
 import update from "./updateUser.controller";
 import remove from "./deleteUser.controller";
 
-export const user = {
+export const userRoute = {
   get,
   post,
   update,

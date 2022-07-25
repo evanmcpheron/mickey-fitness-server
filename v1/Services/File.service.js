@@ -48,12 +48,12 @@ export class File {
 
 			s3.upload(params, (error, data) => {
 				console.log(
-					'🚀 ~ file: File.js ~ line 61 ~ File ~ s3.upload ~ data',
+					'🚀 ~ file: File.service.js ~ line 61 ~ File ~ s3.upload ~ data',
 					data
 				);
 				if (error) {
 					console.error(
-						'🚀 ~ file: File.js ~ line 56 ~ File ~ s3.upload ~ error',
+						'🚀 ~ file: File.service.js ~ line 56 ~ File ~ s3.upload ~ error',
 						error
 					);
 					return 'Something went wrong with upload';
@@ -62,7 +62,7 @@ export class File {
 			return `${random}.${fileType}`;
 		} catch (error) {
 			console.log(
-				'🚀 ~ file: File.js ~ line 45 ~ File ~ upload ~ error',
+				'🚀 ~ file: File.service.js ~ line 45 ~ File ~ upload ~ error',
 				error
 			);
 			return error;
@@ -79,7 +79,7 @@ export class File {
 
 		s3.deleteObject(params, function (error, data) {
 			if (error) {
-				console.error('🚀 ~ file: File.js ~ line 87 ~ File ~ error', error);
+				console.error('🚀 ~ file: File.service.js ~ line 87 ~ File ~ error', error);
 				return error;
 			}
 		});
