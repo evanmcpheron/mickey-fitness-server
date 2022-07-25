@@ -4,7 +4,12 @@ import { File } from '../../Services/File.service';
 
 module.exports = {
 	profileImageUpload: async (req, res) => {
-		if (!req.currentUser) return;
+		if (!req.currentUser) {
+			return res.status(403).send(error('You must be logged in to upload a profile photo', res.statusCode, {}))
+		};
+
+		const currentUserIdString = req.currentUser._id.toString();
+		const prevProfilePhoto = req.currentUser.data.photoURL;
 
 		const acceptedTypes = ['png', 'jpg', 'jpeg'];
 
@@ -19,7 +24,7 @@ module.exports = {
 			return res.status(400).send(error, validationResult);
 		}
 
-		const fileName = await File.upload(req.file);
+		const fileName = await File.upload(req.file, `user/${currentUserIdString}`);
 
 		if (fileName === 'Something went wrong with upload') {
 			return res.status(400).send(error(fileName, res.statusCode));
@@ -30,7 +35,10 @@ module.exports = {
 		user.data.photoURL = fileName;
 		await user.save();
 
+		if(prevProfilePhoto !== 'default-profile.jpg') {
 		// TODO: IMPLEMENT DELETE FILE MEATHOD
+		await File.delete(prevProfilePhoto,`user/${currentUserIdString}`);
+		}
 
 		res
 			.status(200)

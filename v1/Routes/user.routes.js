@@ -19,6 +19,12 @@ module.exports = () => {
 		currentUser,
 		async (req, res) => await userRoute.get.me(req, res)
 	);
+	// @route    GET /v1/auth/user/:id
+	// @desc     Route will return specific user in database
+	// @access   PUBLIC
+	router.get(
+		'/user/:id',async (req, res) => await userRoute.get.user(req, res)
+	);
 
 	// @route    POST /v1/auth/signup
 	// @desc     Register user
