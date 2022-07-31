@@ -191,11 +191,19 @@ module.exports = {
 			console.log(err);
 		}
 	},
-
 	signout: (req, res) => {
 		req.session = null;
 		res
 			.status(200)
 			.send(success('You have successfully signed out', res.statusCode, {}));
 	},
+	facebook: async (req, res) => {
+
+	},
+	google: async (req, res) => {
+
+	},
+	apple: async (req, res) => {
+
+	}
 };

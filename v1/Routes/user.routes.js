@@ -62,12 +62,45 @@ module.exports = () => {
 		async (req, res) => await userRoute.update.profileImageUpload(req, res)
 	);
 
+	// @route    PUT v1/auth/user
+	// @desc     Updates user object
+	// @access   Public
+	router.put(
+		'/user',
+		currentUser,
+		async (req, res) => await userRoute.update.user(req, res)
+	);
+
 	// @route    POST v1/auth/signout
 	// @desc     Removes current user session information form server
 	// @access   Public
 	router.post(
 		'/sign-out',
 		async (req, res) => await userRoute.post.signout(req, res)
+	);
+
+	// @route    POST v1/auth/facebook
+	// @desc     Logs in user with facebook
+	// @access   Public
+	router.post(
+		'/facebook',
+		async (req, res) => await userRoute.post.facebook(req, res)
+	);
+
+	// @route    POST v1/auth/google
+	// @desc     Logs in user with google
+	// @access   Public
+	router.post(
+		'/google',
+		async (req, res) => await userRoute.post.google(req, res)
+	);
+
+	// @route    POST v1/auth/apple
+	// @desc     Logs in user with apple
+	// @access   Public
+	router.post(
+		'/apple',
+		async (req, res) => await userRoute.post.apple(req, res)
 	);
 
 	// TODO: MAKE SURE TO CANCEL ANY SUBSCRIPTIONS!

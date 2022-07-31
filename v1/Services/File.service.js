@@ -46,7 +46,7 @@ export class File {
 				Body: file.buffer,
 			};
 
-			this.s3.upload(params, (error, data) => {
+			await this.s3.upload(params, (error, data) => {
 
 				if (error) {
 					console.error(
