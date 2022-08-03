@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import express from 'express';
 import { success, error } from '../../Utils/responseAPI.util';
 import { Password } from '../../Services/Password.service';
 import crypto from 'crypto';
@@ -6,6 +7,56 @@ import crypto from 'crypto';
 import { User } from '../../Models/User.model';
 import { Token } from '../../Models/Token.model';
 import { Email } from '../../Services/Email.service';
+import passport from 'passport';
+import strategy from 'passport-facebook';
+import { proxy, serverProxy } from '../../Utils/proxy';
+
+const app = express();
+
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const TwitterStrategy = require('passport-twitter').Strategy;
+const FacebookStrategy = strategy.Strategy;
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(
+	new FacebookStrategy(
+		{
+			clientID: process.env.FACEBOOK_CLIENT_ID,
+			clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+			callbackURL: `${serverProxy()}/v1/auth/facebook/callback`,
+			profileFields: ['id', 'emails', 'name'],
+		},
+		function(accessToken, refreshToken, profile, done) {
+			done(null, profile);
+		},
+	),
+);
+
+passport.use(new GoogleStrategy({
+		clientID: process.env.GOOGLE_CLIENT_ID,
+		clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+		callbackURL: `${serverProxy()}/v1/auth/google/callback`,
+	},
+	(accessToken, refreshToken, profile, done) => {
+		return done(null, profile);
+	},
+));
+
+passport.use(new TwitterStrategy({
+		consumerKey: process.env.TWITTER_CONSUMER_KEY,
+		consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+		callbackURL: `${serverProxy()}/v1/auth/twitter/callback`,
+		includeEmail: true,
+		profileFields: ['id', 'email', 'name'],
+	},
+	function(token, tokenSecret, profile, cb) {
+		// User.findOrCreate({ twitterId: profile.id }, function (err, user) {
+			return cb(null, profile);
+		// });
+	}
+));
 
 module.exports = {
 	signup: async (req, res) => {
@@ -19,22 +70,22 @@ module.exports = {
 				.send(
 					error(
 						'A user already exists with that email. Please try again.',
-						res.statusCode
-					)
+						res.statusCode,
+					),
 				);
 		}
 
 		const formDisplayName = (firstName, lastName) => {
-			if(!lastName) {
+			if (!lastName) {
 				return firstName;
 			}
-			return `${firstName} ${lastName}`
-		}
+			return `${firstName} ${lastName}`;
+		};
 
 		const user = new User({
 			password,
 			role: 'user',
-			data: { firstName,lastName, displayName: formDisplayName(firstName, lastName), email },
+			data: { firstName, lastName, displayName: formDisplayName(firstName, lastName), email },
 		});
 
 		await user.save();
@@ -48,7 +99,7 @@ module.exports = {
 				lastName: user.lastName,
 				displayName: user.displayName,
 			},
-			process.env.JSON_WEB_TOKEN
+			process.env.JSON_WEB_TOKEN,
 		);
 
 		// Store it on session object
@@ -59,7 +110,7 @@ module.exports = {
 		res.status(201).send(
 			success('You have succesfully registered', res.statusCode, {
 				user,
-			})
+			}),
 		);
 	},
 	login: async (req, res) => {
@@ -73,14 +124,14 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode
-					)
+						res.statusCode,
+					),
 				);
 		}
 
 		const passwordsMatch = await Password.compare(
 			existingUser.password,
-			password
+			password,
 		);
 
 		if (!passwordsMatch) {
@@ -89,8 +140,8 @@ module.exports = {
 				.send(
 					error(
 						'You have entered an incorrect email or password. Please try again',
-						res.statusCode
-					)
+						res.statusCode,
+					),
 				);
 		}
 
@@ -102,7 +153,7 @@ module.exports = {
 				displayName: existingUser.displayName,
 			},
 			process.env.JSON_WEB_TOKEN,
-			{ expiresIn: rememberMe ? '14d' : '24h' }
+			{ expiresIn: rememberMe ? '14d' : '24h' },
 		);
 
 		// Store it on session object
@@ -113,7 +164,7 @@ module.exports = {
 		res.status(200).send(
 			success('Welcome back', res.statusCode, {
 				user: existingUser,
-			})
+			}),
 		);
 	},
 	forgotPassword: async (req, res) => {
@@ -125,7 +176,7 @@ module.exports = {
 			return res
 				.status(401)
 				.send(
-					error('Check your email for password reset link', res.statusCode)
+					error('Check your email for password reset link', res.statusCode),
 				);
 		}
 
@@ -150,7 +201,7 @@ module.exports = {
 			'Password Reset Link for Mickey Fitness',
 			link,
 			process.env.EMAIL_NOREPLY_EMAIL,
-			process.env.EMAIL_NOREPLY_PASSWORD
+			process.env.EMAIL_NOREPLY_PASSWORD,
 		);
 
 		res
@@ -159,8 +210,8 @@ module.exports = {
 				success(
 					'Check your email for password reset link',
 					res.statusCode,
-					response
-				)
+					response,
+				),
 			);
 	},
 	passwordReset: async (req, res) => {
@@ -197,13 +248,167 @@ module.exports = {
 			.status(200)
 			.send(success('You have successfully signed out', res.statusCode, {}));
 	},
-	facebook: async (req, res) => {
+	facebookCallback: async (req, res) => {
 
+		const { email, first_name, last_name } = req.user._json;
+
+		const existingUser = await User.findOne({ 'data.email': email });
+
+		if (existingUser) {
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: existingUser.id,
+					email: existingUser.email,
+					firstName: existingUser.firstName,
+					lastName: existingUser.lastName,
+					displayName: existingUser.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+
+			return res.redirect(`${proxy()}/`);
+		} else {
+			const user = new User({
+				password: process.env.FACEBOOK_USER_PASS,
+				role: 'user',
+				data: { firstName: first_name, lastName: last_name, displayName: `${first_name} ${last_name}`, email },
+			});
+
+			await user.save();
+
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: user.id,
+					email: user.email,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					displayName: user.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+
+			res.redirect(`${proxy()}/sign-in`);
+		}
 	},
-	google: async (req, res) => {
+	googleCallback: async (req, res) => {
+		const { email, given_name, family_name, name } = req.user._json;
 
+		const existingUser = await User.findOne({ 'data.email': email });
+
+		if (existingUser) {
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: existingUser.id,
+					email: existingUser.email,
+					firstName: existingUser.firstName,
+					lastName: existingUser.lastName,
+					displayName: existingUser.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+
+			return res.redirect(`${proxy()}/`);
+		} else {
+
+			const user = new User({
+				password: process.env.GOOGLE_USER_PASS,
+				role: 'user',
+				data: { firstName: given_name, lastName: family_name, displayName: name, email },
+			});
+
+			await user.save();
+
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: user.id,
+					email: user.email,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					displayName: user.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+
+			res.redirect(`${proxy()}/sign-in`);
+		}
 	},
-	apple: async (req, res) => {
+	twitterCallback: async (req, res) => {
 
-	}
+		const {email, name} = req.user._json;
+		const existingUser = await User.findOne({ 'data.email': email });
+
+
+		if (existingUser) {
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: existingUser.id,
+					email: existingUser.email,
+					firstName: existingUser.firstName,
+					lastName: existingUser.lastName,
+					displayName: existingUser.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+		//
+			return res.redirect(`${proxy()}/`);
+		} else {
+				const [firstName, lastName] = name.split(' ')
+			const user = new User({
+				password: process.env.TWITTER_USER_PASS,
+				role: 'user',
+				data: { firstName, lastName, displayName: name, email },
+			});
+
+			await user.save();
+
+			// Generate JWT
+			const userJwt = jwt.sign(
+				{
+					id: user.id,
+					email: user.email,
+					firstName: user.firstName,
+					lastName: user.lastName,
+					displayName: user.displayName,
+				},
+				process.env.JSON_WEB_TOKEN,
+			);
+
+			// Store it on session object
+			req.session = {
+				access_token: userJwt,
+			};
+
+			res.redirect(`${proxy()}/sign-in`);
+		}
+	},
 };

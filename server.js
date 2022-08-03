@@ -1,11 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 import bodyParser from 'body-parser';
 import connectDB from './v1/Config/db';
 import cookieSession from 'cookie-session';
-
-const stripe = require('stripe')(process.env.STRIPE_SK);
+import passport from 'passport';
 
 const app = express();
 app.set('trust proxy', true);
@@ -20,35 +18,36 @@ const origin =
 		? 'https://www.mickeyfitness.com'
 		: 'http://localhost:3000';
 
+app.use(
+	cookieSession({
+		name: 'session',
+		signed: false,
+		saveUninitialized: true,
+		// secure: process.env.NODE_ENV !== 'test',
+		secure: false,
+	}),
+);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(
 	cors({
 		credentials: true,
 		origin,
-	})
+	}),
 );
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Credentials', true);
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
 	res.header(
 		'Access-Control-Allow-Methods',
-		'GET,PUT,POST,DELETE,UPDATE,OPTIONS'
+		'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
 	);
 	res.header(
 		'Access-Control-Allow-Headers',
-		'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept'
+		'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept',
 	);
 	next();
 });
-app.use(
-	cookieSession({
-		name: 'session',
-		signed: false,
-		// secure: process.env.NODE_ENV !== 'test',
-		secure: false,
-	})
-);
 
 // app.get("/v1/secret", async (req, res) => {
 //   const intent = await stripe.paymentIntents.create({
@@ -60,6 +59,15 @@ app.use(
 
 //   res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
 // });
+
+passport.serializeUser(function(user, cb) {
+	cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+	cb(null, obj);
+});
+
 app.use('/v1', require('./v1/Routes/index')(application));
 
 if (process.env.NODE_ENV !== 'test') {
