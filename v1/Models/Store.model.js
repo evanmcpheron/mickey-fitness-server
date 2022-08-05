@@ -2,14 +2,18 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const storeSchema = new Schema({
-	userId: {
-		type: Schema.Types.ObjectId,
-		required: true,
-		ref: 'user',
-	},
-	storeName: {
+	name: {
 		type: String,
 		required: true
+	},
+	about: {
+		type: String
+	},
+	specialties: {
+		type: Array
+	},
+	certifications: {
+		type: Array
 	},
 	createdAt: {
 		type: Date,

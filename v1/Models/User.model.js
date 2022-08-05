@@ -40,6 +40,11 @@ const UserSchema = new mongoose.Schema(
 				type: String,
 				required: true,
 			},
+			store: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: 'store',
+				default: null
+			}
 		},
 	},
 	{

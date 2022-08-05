@@ -8,9 +8,17 @@ module.exports = () => {
 	// @route    GET /v1/store/me
 	// @desc     gets my store
 	// @access   Public
+	router.post(
+		'/', currentUser,
+		async (req, res) => await storeRoute.post.new(req, res)
+	);
+
+	// @route    GET /v1/store/me
+	// @desc     gets my store
+	// @access   Public
 	router.get(
-		'/me', currentUser,
-		async (req, res) => await storeRoute.get.me(req, res)
+		'/:userId', currentUser,
+		async (req, res) => await storeRoute.get.store(req, res)
 	);
 
 	return router;
