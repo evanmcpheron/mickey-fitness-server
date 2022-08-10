@@ -1,53 +1,53 @@
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import connectDB from './v1/Config/db';
-import cookieSession from 'cookie-session';
-import passport from 'passport';
+import express from 'express'
+import cors from 'cors'
+import bodyParser from 'body-parser'
+import cookieSession from 'cookie-session'
+import passport from 'passport'
+import connectDB from './v1/Config/db'
 
-const app = express();
-app.set('trust proxy', true);
-const PORT = process.env.PORT || 8080;
+const app = express()
+app.set('trust proxy', true)
+const PORT = process.env.PORT || 8080
 
 const application = {
-	app,
-};
+  app,
+}
 
 const origin =
-	process.env.NODE_ENV === 'production'
-		? 'https://www.mickeyfitness.com'
-		: 'http://localhost:3000';
+  process.env.NODE_ENV === 'production'
+    ? 'https://www.mickeyfitness.com'
+    : 'http://localhost:3000'
 
 app.use(
-	cookieSession({
-		name: 'session',
-		signed: false,
-		saveUninitialized: true,
-		// secure: process.env.NODE_ENV !== 'test',
-		secure: false,
-	}),
-);
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+  cookieSession({
+    name: 'session',
+    signed: false,
+    saveUninitialized: true,
+    // secure: process.env.NODE_ENV !== 'test',
+    secure: false,
+  })
+)
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 app.use(
-	cors({
-		credentials: true,
-		origin,
-	}),
-);
-app.use(function(req, res, next) {
-	res.header('Access-Control-Allow-Credentials', true);
-	res.header('Access-Control-Allow-Origin', req.headers.origin);
-	res.header(
-		'Access-Control-Allow-Methods',
-		'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
-	);
-	res.header(
-		'Access-Control-Allow-Headers',
-		'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept',
-	);
-	next();
-});
+  cors({
+    credentials: true,
+    origin,
+  })
+)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', true)
+  res.header('Access-Control-Allow-Origin', req.headers.origin)
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET,PUT,POST,DELETE,UPDATE,OPTIONS'
+  )
+  res.header(
+    'Access-Control-Allow-Headers',
+    'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept'
+  )
+  next()
+})
 
 // app.get("/v1/secret", async (req, res) => {
 //   const intent = await stripe.paymentIntents.create({
@@ -60,21 +60,21 @@ app.use(function(req, res, next) {
 //   res.json({ client_secret: intent.client_secret }); // ... Fetch or create the PaymentIntent
 // });
 
-passport.serializeUser(function(user, cb) {
-	cb(null, user);
-});
+passport.serializeUser((user, cb) => {
+  cb(null, user)
+})
 
-passport.deserializeUser(function(obj, cb) {
-	cb(null, obj);
-});
+passport.deserializeUser((obj, cb) => {
+  cb(null, obj)
+})
 
-app.use('/v1', require('./v1/Routes/index')(application));
+app.use('/v1', require('./v1/Routes/index')(application))
 
 if (process.env.NODE_ENV !== 'test') {
-	app.listen(PORT, async () => {
-		await connectDB();
-		console.log(`Server listening on http://localhost:${PORT}`);
-	});
+  app.listen(PORT, async () => {
+    await connectDB()
+    console.log(`Server listening on http://localhost:${PORT}`)
+  })
 }
 
-module.exports = app;
+module.exports = app

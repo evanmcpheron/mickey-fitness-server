@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "v1",
-    "include": [
-      "v1"
-    ]
+    "baseUrl": "v1"
   }
 }

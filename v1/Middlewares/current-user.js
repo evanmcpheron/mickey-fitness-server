@@ -1,23 +1,23 @@
-import jwt from 'jsonwebtoken';
-import { User } from '../Models/User.model';
+import jwt from 'jsonwebtoken'
+import { User } from '../Models/User.model'
 
 export const currentUser = async (req, res, next) => {
-	if (!req.session?.access_token) {
-		return next();
-	}
+  if (!req.session?.access_token) {
+    return next()
+  }
 
-	try {
-		const payload = jwt.verify(
-			req.session.access_token,
-			process.env.JSON_WEB_TOKEN
-		);
+  try {
+    const payload = jwt.verify(
+      req.session.access_token,
+      process.env.JSON_WEB_TOKEN
+    )
 
-		const response = await User.findById(payload.id);
+    const response = await User.findById(payload.id)
 
-		req.currentUser = response;
-	} catch (err) {
-		console.log(err);
-	}
+    req.currentUser = response
+  } catch (err) {
+    console.log(err)
+  }
 
-	next();
-};
+  next()
+}
