@@ -1,6 +1,5 @@
 import express from 'express'
 import { stripeRoute } from '../Controllers/Stripe/stripeIndex.controller'
-import { currentUser } from '../Middlewares/current-user'
 
 module.exports = () => {
   const router = express.Router()
@@ -10,7 +9,6 @@ module.exports = () => {
   // @access   Public
   router.get(
     '/cards',
-    currentUser,
     async (req, res) => await stripeRoute.get.cards(req, res)
   )
 

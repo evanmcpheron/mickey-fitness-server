@@ -1,14 +1,13 @@
 import express from 'express'
 import passport from 'passport'
-import { userRoute } from '../Controllers/User/userIndex.controller'
 import { currentUser } from '../Middlewares/current-user'
-import { File } from '../Services/File.service'
+import { userRoute } from '../Controllers/User/userIndex.controller'
 import { proxy } from '../Utils/proxy'
 
 module.exports = () => {
   const router = express.Router()
-
   // @route    GET /v1/auth
+
   // @desc     Route will return all user in database
   // @access   PUBLIC
   router.get('/', async (req, res) => await userRoute.get.all(req, res))
@@ -17,8 +16,7 @@ module.exports = () => {
   // @desc     Route will return all user in database
   // @access   PRIVATE
   router.get(
-    '/me',
-    currentUser,
+    '/me', currentUser,
     async (req, res) => await userRoute.get.me(req, res)
   )
   // @route    GET /v1/auth/user/:id
@@ -26,7 +24,6 @@ module.exports = () => {
   // @access   PUBLIC
   router.get(
     '/user/:id',
-    currentUser,
     async (req, res) => await userRoute.get.user(req, res)
   )
 
@@ -34,16 +31,16 @@ module.exports = () => {
   // @desc     Register user
   // @access   Public
   router.post(
-    '/sign-up',
+    '/signup',
     async (req, res) => await userRoute.post.signup(req, res)
   )
 
-  // @route    POST v1/auth/login
+  // @route    POST v1/auth/signin
   // @desc     Authenticate user & get token
   // @access   Public
   router.post(
-    '/sign-in',
-    async (req, res) => await userRoute.post.login(req, res)
+    '/signin',
+    async (req, res) => await userRoute.post.signin(req, res)
   )
 
   // @route    POST v1/auth/forgot-password
@@ -62,22 +59,11 @@ module.exports = () => {
     async (req, res) => await userRoute.post.passwordReset(req, res)
   )
 
-  // @route    POST v1/auth/profile/image
-  // @desc     Sends a forgot password link to email to reset password
-  // @access   Public
-  router.put(
-    '/profile/image',
-    currentUser,
-    File.type('image'),
-    async (req, res) => await userRoute.update.profileImageUpload(req, res)
-  )
-
   // @route    PUT v1/auth/user
   // @desc     Updates user object
   // @access   Public
   router.put(
     '/user',
-    currentUser,
     async (req, res) => await userRoute.update.user(req, res)
   )
 
@@ -117,18 +103,6 @@ module.exports = () => {
       failureRedirect: `${proxy()}/sign-in`,
     }),
     (req, res) => userRoute.post.googleCallback(req, res)
-  )
-
-  // @route    POST v1/auth/twitter
-  // @desc     Logs in user with twitter
-  // @access   Public
-  router.get('/twitter', passport.authenticate('twitter'))
-  router.get(
-    '/twitter/callback',
-    passport.authenticate('twitter', {
-      failureRedirect: `${proxy()}/sign-in`,
-    }),
-    (req, res) => userRoute.post.twitterCallback(req, res)
   )
 
   // TODO: MAKE SURE TO CANCEL ANY SUBSCRIPTIONS!

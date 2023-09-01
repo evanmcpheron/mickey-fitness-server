@@ -1,23 +1,26 @@
 import jwt from 'jsonwebtoken'
-import { User } from '../Models/User.model'
+import { db } from '../Utils/admin';
 
 export const currentUser = async (req, res, next) => {
-  if (!req.session?.access_token) {
-    return next()
-  }
+    console.log(req.session);
+    if (!req.session?.access_token) {
+        return next()
+    }
 
-  try {
-    const payload = jwt.verify(
-      req.session.access_token,
-      process.env.JSON_WEB_TOKEN
-    )
+    try {
+        const payload = jwt.verify(
+            req.session.access_token,
+            process.env.JSON_WEB_TOKEN
+        )
 
-    const response = await User.findById(payload.id)
 
-    req.currentUser = response
-  } catch (err) {
-    console.log(err)
-  }
+        const usersDb = db.collection("users");
+        const currentUser = await usersDb.doc(payload.id).get();
 
-  next()
+        req.currentUser = currentUser;
+    } catch (err) {
+        console.log(err)
+    }
+
+    next()
 }
